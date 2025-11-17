@@ -1,0 +1,22 @@
+{
+    "name": "labelprinter/laravel-label-printer",
+    "description": "Reusable label / sticker printing for Laravel using JsBarcode.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "LabelPrinter\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LabelPrinter\\LabelPrinterServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": ">=8.0",
+        "illuminate/support": "^9.0|^10.0|^11.0"
+    }
+}
