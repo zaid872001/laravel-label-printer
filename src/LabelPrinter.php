@@ -4,13 +4,24 @@ namespace LabelPrinter;
 
 class LabelPrinter
 {
-    public function print(array $labels)
+    public static function make(array $labels, string $type = 'meal')
     {
-        return view('labelprinter::print', compact('labels'));
+        $view = match ($type) {
+            'meal'  => 'labelprinter::print',
+            'daily' => 'labelprinter::daily',
+            default => 'labelprinter::print',
+        };
+
+        return response()->view($view, compact('labels'));
     }
 
-    public static function make(array $labels)
+    public static function meal(array $labels)
     {
-        return (new static())->print($labels);
+        return static::make($labels, 'meal');
+    }
+
+    public static function daily(array $label)
+    {
+        return static::make([$label], 'daily');
     }
 }
