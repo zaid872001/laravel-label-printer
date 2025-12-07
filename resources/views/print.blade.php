@@ -9,14 +9,17 @@
             size: 60mm 40mm;
             margin: 0;
         }
+
         body {
             margin-top: 120px;
             padding: 0;
         }
+
         .page-wrap {
             page-break-after: always;
             break-after: page;
         }
+
         .sticker {
             width: 60mm;
             height: 40mm;
@@ -24,6 +27,8 @@
             position: relative;
             overflow: hidden;
         }
+
+        /* Rotated main content (unchanged) */
         .sticker-content {
             position: absolute;
             top: 50%;
@@ -36,20 +41,27 @@
             text-align: center;
             font-family: Arial, "Helvetica Neue", sans-serif;
         }
+
         .content-inner {
             position: relative;
             top: 8mm;
         }
+
         .title-en {
             margin: 0 0 2mm 0;
             font-size: 8pt;
             font-weight: 700;
         }
-        .title-ar {
+
+        /* .title-ar REMOVED because we no longer use Arabic name */
+
+        .microwave {
             margin: 0 0 2mm 0;
-            font-size: 8pt;
-            direction: rtl;
+            font-size: 6pt;
+            line-height: 1.1;
+            direction: ltr;
         }
+
         .nutrition-card {
             margin: 0 auto 2mm auto;
             padding: 1mm 2mm;
@@ -59,40 +71,68 @@
             align-items: center;
             justify-content: space-between;
         }
+
         .nutrition-item {
             flex: 1;
             text-align: center;
         }
+
         .nutrition-item:not(:last-child) {
             border-right: 0.18mm solid #000;
         }
+
         .nutrition-value {
             margin: 0;
             font-size: 8pt;
             font-weight: 700;
         }
+
         .nutrition-label {
             margin: 0;
             font-size: 6pt;
         }
+
         .barcode-wrapper {
             margin-top: 1mm;
         }
+
         .sn-barcode {
             width: 100%;
             display: flex;
             justify-content: center;
         }
+
         .sn-barcode svg {
             width: 100%;
             height: auto;
             max-height: 7mm;
         }
+
         .barcode-digits {
             margin-top: 0.6mm;
             font-size: 7pt;
             letter-spacing: 0.6mm;
         }
+
+        /* ===== Pro at top-left, Exp at bottom-left (not rotated) ===== */
+
+        .pro-strip,
+        .exp-strip {
+            position: absolute;
+            left: 2mm;
+            font-size: 7pt;
+            font-family: Arial, "Helvetica Neue", sans-serif;
+            white-space: nowrap;
+        }
+
+        .pro-strip {
+            top: 2mm;
+        }
+
+        .exp-strip {
+            bottom: 2mm;
+        }
+
         @media print {
             body {
                 margin: 0;
@@ -113,57 +153,82 @@
 
 <body>
 
-    @foreach ($labels as $label)
-        <div class="page-wrap">
-            <div class="sticker">
-                <div class="sticker-content">
-                    <div class="content-inner">
-                        <div class="title-en">
-                            {{ $label['name_en'] ?? '' }}
+@foreach ($labels as $label)
+    <div class="page-wrap">
+        <div class="sticker">
+
+            {{-- Pro at top-left --}}
+            @if (!empty($label['pro_date']))
+                <div class="pro-strip">
+                    Pro: {{ $label['pro_date'] }}
+                </div>
+            @endif
+
+            {{-- Exp at bottom-left --}}
+            @if (!empty($label['exp_date']))
+                <div class="exp-strip">
+                    Exp: {{ $label['exp_date'] }}
+                </div>
+            @endif
+
+            {{-- Rotated main content --}}
+            <div class="sticker-content">
+                <div class="content-inner">
+                    <div class="title-en">
+                        {{ $label['name_en'] ?? '' }}
+                    </div>
+
+                    @if (!empty($label['microwave_instructions']))
+                        <div class="microwave">
+                            Microwave heating instructions: {{ $label['microwave_instructions'] }}
                         </div>
-                        <div class="title-ar">
-                            {{ $label['name_ar'] ?? '' }}
+                    @endif
+
+                    <div class="nutrition-card">
+                        <div class="nutrition-item">
+                            <p class="nutrition-value">{{ $label['kcal'] ?? '' }}</p>
+                            <p class="nutrition-label">Kcal</p>
                         </div>
-                        <div class="nutrition-card">
-                            <div class="nutrition-item">
-                                <p class="nutrition-value">{{ $label['kcal'] ?? '' }}</p>
-                                <p class="nutrition-label">Kcal</p>
-                            </div>
-                            <div class="nutrition-item">
-                                <p class="nutrition-value">{{ $label['protein'] ?? '' }}</p>
-                                <p class="nutrition-label">Pro</p>
-                            </div>
-                            <div class="nutrition-item">
-                                <p class="nutrition-value">{{ $label['carb'] ?? '' }}</p>
-                                <p class="nutrition-label">Carb</p>
-                            </div>
-                            <div class="nutrition-item">
-                                <p class="nutrition-value">{{ $label['fat'] ?? '' }}</p>
-                                <p class="nutrition-label">Fat</p>
-                            </div>
+                        <div class="nutrition-item">
+                            <p class="nutrition-value">{{ $label['protein'] ?? '' }}</p>
+                            <p class="nutrition-label">Pro</p>
                         </div>
-                        <div class="barcode-wrapper">
-                            <div class="sn-barcode">
-                                <svg class="sn-barcode-svg" jsbarcode-value="{{ $label['barcode'] ?? '' }}"
-                                    jsbarcode-format="CODE128" jsbarcode-height="50" jsbarcode-displayValue="false">
-                                </svg>
-                            </div>
-                            <div class="barcode-digits">
-                                {{ $label['barcode'] ?? '' }}
-                            </div>
+                        <div class="nutrition-item">
+                            <p class="nutrition-value">{{ $label['carb'] ?? '' }}</p>
+                            <p class="nutrition-label">Carb</p>
+                        </div>
+                        <div class="nutrition-item">
+                            <p class="nutrition-value">{{ $label['fat'] ?? '' }}</p>
+                            <p class="nutrition-label">Fat</p>
+                        </div>
+                    </div>
+
+                    <div class="barcode-wrapper">
+                        <div class="sn-barcode">
+                            <svg class="sn-barcode-svg"
+                                 jsbarcode-value="{{ $label['barcode'] ?? '' }}"
+                                 jsbarcode-format="CODE128"
+                                 jsbarcode-height="50"
+                                 jsbarcode-displayValue="false">
+                            </svg>
+                        </div>
+                        <div class="barcode-digits">
+                            {{ $label['barcode'] ?? '' }}
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    @endforeach
 
-    <script>
-        window.onload = function() {
-            JsBarcode(".sn-barcode-svg").init();
-            window.print();
-        };
-    </script>
+        </div>
+    </div>
+@endforeach
+
+<script>
+    window.onload = function() {
+        JsBarcode(".sn-barcode-svg").init();
+        window.print();
+    };
+</script>
 
 </body>
 
